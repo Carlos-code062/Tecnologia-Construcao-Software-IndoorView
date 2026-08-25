@@ -160,33 +160,7 @@ O banco armazenará os dados dos anunciantes, campanhas, estabelecimentos e tela
 
 12. Diagrama da visão geral da solução
 
-                    USUÁRIO
-                       |
-                       v
-              +----------------+
-              |  APLICAÇÃO WEB |
-              | HTML / CSS / JS|
-              +----------------+
-                       |
-                       v
-              +----------------+
-              |    SERVIDOR    |
-              | Node + Express |
-              +----------------+
-                       |
-                       v
-              +----------------+
-              |     SQLite     |
-              +----------------+
-                       |
-        +--------------+--------------+
-        |              |              |
-        v              v              v
-   ANUNCIANTES     CAMPANHAS    ESTABELECIMENTOS
-                       |              |
-                       |              v
-                       +----------> TELAS
-
+![Diagrama da solução](https://github.com/user-attachments/assets/3a49df35-cad0-42a9-a997-eddfc69b8b89)
 
 Regra principal do sistema
 
