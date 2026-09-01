@@ -44,10 +44,20 @@ Banco de dados:
 
 Etapa atual
 
-Etapa 01 — Proposta e Especificação do Projeto
+Etapa 02 — Protótipo Estrutural com HTML Semântico
+
+Nesta etapa foram criadas três interfaces para o IndoorView:
+
+- Página inicial;
+- Listagem de campanhas;
+- Formulário de cadastro de campanha.
+
+As interfaces foram desenvolvidas utilizando HTML semântico.
 
 Documentação
 
-A especificação completa está disponível em:
-
+Etapa 01:
 docs/proposta.md
+
+Etapa 02:
+docs/etapa-02.md

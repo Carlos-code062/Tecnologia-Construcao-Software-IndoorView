@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IndoorView - Nova Campanha</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>IndoorView</h1>
+      <p>Sistema de Gerenciamento de Mídia Indoor</p>
+
+      <nav>
+        <a href="index.html">Início</a>
+        <a href="campanhas.html">Campanhas</a>
+        <a href="cadastro-campanha.html">Nova Campanha</a>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <h2>Cadastro de campanha</h2>
+
+        <form>
+          <div>
+            <label for="nome">Nome da campanha</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              placeholder="Ex: Campanha Academia Fit"
+            />
+          </div>
+
+          <div>
+            <label for="anunciante">Anunciante</label>
+            <input
+              type="text"
+              id="anunciante"
+              name="anunciante"
+              placeholder="Nome do anunciante"
+            />
+          </div>
+
+          <div>
+            <label for="descricao">Descrição</label>
+            <textarea
+              id="descricao"
+              name="descricao"
+              rows="4"
+              placeholder="Descrição da campanha"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="data-inicio">Data de início</label>
+            <input type="date" id="data-inicio" name="data-inicio" />
+          </div>
+
+          <div>
+            <label for="data-fim">Data de término</label>
+            <input type="date" id="data-fim" name="data-fim" />
+          </div>
+
+          <div>
+            <label for="estabelecimento">Estabelecimento</label>
+
+            <select id="estabelecimento" name="estabelecimento">
+              <option value="">Selecione um estabelecimento</option>
+              <option value="academia">Academia Power Fit</option>
+              <option value="mercado">Mercado Central</option>
+              <option value="shopping">Shopping Centro</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="status">Status</label>
+
+            <select id="status" name="status">
+              <option value="futura">Futura</option>
+              <option value="ativa">Ativa</option>
+              <option value="encerrada">Encerrada</option>
+            </select>
+          </div>
+
+          <button type="submit">Cadastrar campanha</button>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <p>IndoorView - Tecnologia de Construção de Software I</p>
+    </footer>
+  </body>
+</html>
