@@ -44,7 +44,7 @@ Banco de dados:
 
 Etapa atual
 
-Etapa 02 — Protótipo Estrutural com HTML Semântico
+Etapa 03 — Interface Responsiva com CSS
 
 Nesta etapa foram criadas três interfaces para o IndoorView:
 
@@ -52,7 +52,7 @@ Nesta etapa foram criadas três interfaces para o IndoorView:
 - Listagem de campanhas;
 - Formulário de cadastro de campanha.
 
-As interfaces foram desenvolvidas utilizando HTML semântico.
+As três interfaces da Etapa 02 foram mantidas e adaptadas para desktop, tablet e smartphone com CSS organizado, Flexbox, Grid e media queries.
 
 Documentação
 
@@ -61,3 +61,6 @@ docs/proposta.md
 
 Etapa 02:
 docs/etapa-02.md
+
+Etapa 03:
+docs/etapa-03.md
