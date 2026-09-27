@@ -4,63 +4,49 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IndoorView - Campanhas</title>
-
     <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
   </head>
-
   <body>
     <header>
       <h1>IndoorView</h1>
       <p>Sistema de Gerenciamento de Mídia Indoor</p>
-
       <nav aria-label="Navegação principal">
         <a href="index.html">Início</a>
         <a href="campanhas.html" aria-current="page">Campanhas</a>
         <a href="cadastro-campanha.html">Nova Campanha</a>
       </nav>
     </header>
-
     <main>
-      <section class="card-grid card-grid--campanhas">
-        <h2>Campanhas cadastradas</h2>
-
-        <article>
-          <h3>Campanha Academia Fit</h3>
-
-          <p><strong>Anunciante:</strong> Academia Fit</p>
-          <p><strong>Período:</strong> 25/08/2026 até 25/09/2026</p>
-          <p><strong>Status:</strong> Ativa</p>
-          <p><strong>Local:</strong> Academia Power Fit</p>
-
-          <button type="button">Ver detalhes</button>
-        </article>
-
-        <article>
-          <h3>Campanha Restaurante Sabor</h3>
-
-          <p><strong>Anunciante:</strong> Restaurante Sabor</p>
-          <p><strong>Período:</strong> 01/09/2026 até 30/09/2026</p>
-          <p><strong>Status:</strong> Futura</p>
-          <p><strong>Local:</strong> Mercado Central</p>
-
-          <button type="button">Ver detalhes</button>
-        </article>
-
-        <article>
-          <h3>Campanha Loja Tech</h3>
-
-          <p><strong>Anunciante:</strong> Loja Tech</p>
-          <p><strong>Período:</strong> 01/08/2026 até 20/08/2026</p>
-          <p><strong>Status:</strong> Encerrada</p>
-          <p><strong>Local:</strong> Shopping Centro</p>
-
-          <button type="button">Ver detalhes</button>
-        </article>
+      <section aria-labelledby="titulo-campanhas">
+        <h2 id="titulo-campanhas">Campanhas cadastradas</h2>
+        <p id="aviso-dados" role="status"></p>
+        <div class="filtros">
+          <div>
+            <label for="pesquisa">Pesquisar por campanha ou anunciante</label>
+            <input type="search" id="pesquisa" placeholder="Digite um nome" maxlength="80" />
+          </div>
+          <div>
+            <label for="filtro-status">Filtrar por status</label>
+            <select id="filtro-status">
+              <option value="">Todos</option>
+              <option value="ativa">Ativa</option>
+              <option value="futura">Futura</option>
+              <option value="encerrada">Encerrada</option>
+            </select>
+          </div>
+          <button type="button" id="limpar-filtros">Limpar filtros</button>
+        </div>
+        <p id="resultado" role="status"></p>
+        <div id="lista-campanhas" class="card-grid card-grid--campanhas"></div>
+        <noscript>Ative o JavaScript para consultar e pesquisar campanhas.</noscript>
       </section>
+      <dialog id="detalhes" aria-labelledby="titulo-detalhes">
+        <h2 id="titulo-detalhes">Detalhes da campanha</h2>
+        <div id="conteudo-detalhes"></div>
+        <button type="button" id="fechar-detalhes" autofocus>Fechar detalhes</button>
+      </dialog>
     </main>
-
-    <footer>
-      <p>IndoorView - Tecnologia de Construção de Software I</p>
-    </footer>
+    <footer><p>IndoorView - Tecnologia de Construção de Software I</p></footer>
   </body>
 </html>

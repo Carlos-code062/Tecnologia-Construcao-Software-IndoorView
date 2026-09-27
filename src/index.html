@@ -6,6 +6,7 @@
     <title>IndoorView - Início</title>
 
     <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
   </head>
 
   <body>
@@ -21,46 +22,35 @@
     </header>
 
     <main>
+      <p id="aviso-dados" role="status"></p>
       <section class="card-grid">
         <h2>Visão geral</h2>
 
         <article>
           <h3>Campanhas ativas</h3>
-          <p>4 campanhas</p>
+          <p id="total-ativas">Carregando...</p>
         </article>
 
         <article>
           <h3>Anunciantes</h3>
-          <p>6 anunciantes cadastrados</p>
+          <p id="total-anunciantes">Carregando...</p>
         </article>
 
         <article>
           <h3>Estabelecimentos</h3>
-          <p>3 estabelecimentos</p>
+          <p id="total-estabelecimentos">Carregando...</p>
         </article>
 
         <article>
-          <h3>Telas</h3>
-          <p>8 telas cadastradas</p>
+          <h3>Telas demonstrativas</h3>
+          <p>8 telas (exemplo da Etapa 02)</p>
         </article>
       </section>
 
-      <section class="card-grid card-grid--recentes">
+      <section>
         <h2>Campanhas recentes</h2>
-
-        <article>
-          <h3>Campanha Academia Fit</h3>
-          <p>Anunciante: Academia Fit</p>
-          <p>Período: 25/08/2026 até 25/09/2026</p>
-          <p>Status: Ativa</p>
-        </article>
-
-        <article>
-          <h3>Campanha Restaurante Sabor</h3>
-          <p>Anunciante: Restaurante Sabor</p>
-          <p>Período: 01/09/2026 até 30/09/2026</p>
-          <p>Status: Futura</p>
-        </article>
+        <div id="campanhas-recentes" class="card-grid card-grid--recentes"></div>
+        <noscript>Ative o JavaScript para visualizar o resumo das campanhas.</noscript>
       </section>
     </main>
 
