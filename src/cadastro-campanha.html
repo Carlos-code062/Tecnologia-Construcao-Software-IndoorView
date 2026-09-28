@@ -90,14 +90,9 @@
           </div>
 
           <div>
-            <label for="status">Status</label>
-
-            <select id="status" name="status" required aria-describedby="erro-status">
-              <option value="futura">Futura</option>
-              <option value="ativa">Ativa</option>
-              <option value="encerrada">Encerrada</option>
-            </select>
-            <span class="erro-campo" id="erro-status"></span>
+            <span>Status automático</span>
+            <output id="status-calculado" for="data-inicio data-fim" aria-live="polite">Informe um período válido.</output>
+            <small>A campanha fica ativa do início até o fim do último dia. Depois, fica encerrada.</small>
           </div>
 
           <button type="submit">Cadastrar campanha</button>

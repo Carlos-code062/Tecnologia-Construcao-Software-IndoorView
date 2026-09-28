@@ -162,6 +162,8 @@ footer {
 .sucesso { background: #ecfdf5; color: #065f46; }
 .erro-campo { color: #991b1b; font-size: 0.9rem; }
 .erro-campo:empty { display: none; }
+.editar-campanha { display: block; text-align: center; padding: 12px; margin-top: 8px; color: #1d4ed8; font-weight: 700; }
+#status-calculado { padding: 11px 12px; background: #e8eef5; border-radius: 8px; font-weight: 700; }
 [aria-invalid="true"] { border: 2px solid #b91c1c; }
 dialog {
   width: min(560px, calc(100% - 32px));

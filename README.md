@@ -52,13 +52,13 @@ Nesta etapa foram criadas três interfaces para o IndoorView:
 - Listagem de campanhas;
 - Formulário de cadastro de campanha.
 
-As três interfaces mantêm o CSS responsivo e agora possuem cadastro validado, pesquisa e filtro de campanhas, modal de detalhes e resumo dinâmico. Os cadastros são guardados no localStorage do navegador. O status é escolhido manualmente.
+As três interfaces mantêm o CSS responsivo e possuem cadastro validado, edição de campanhas, pesquisa e filtro, modal de detalhes e resumo dinâmico. Os cadastros são guardados no localStorage do navegador. O status é calculado pelas datas: Futura antes do início, Ativa durante todo o período e Encerrada após o último dia, conforme a data local do dispositivo.
 
 Para executar, abra a pasta no VS Code e use **Open with Live Server** em `src/index.html`. Não são necessárias dependências da aplicação. Use sempre o mesmo endereço e porta para acessar seus dados.
 
 Alternativa com Python instalado: execute `python -m http.server 8000 --directory src` na raiz do projeto e acesse `http://localhost:8000/index.html`.
 
-O [roteiro de teste e a matriz de evidências](docs/etapa-04.md) explicam como verificar cada requisito. O JavaScript está em `src/js/app.js`. Versão de entrega: `etapa-04`.
+O [roteiro de teste e a matriz de evidências](docs/etapa-04.md) explicam como verificar cada requisito. O JavaScript está em `src/js/app.js`. A tag `etapa-04` preserva a entrega original; a branch `main` inclui as melhorias posteriores de edição e status automático.
 
 Documentação
 

@@ -43,7 +43,7 @@ O indicador de oito telas permanece identificado como exemplo da Etapa 02, pois 
 - Nome e anunciante: obrigatórios, entre 3 e 80 caracteres após remover espaços nas extremidades.
 - Descrição: opcional, até 500 caracteres.
 - Datas: início e término obrigatórios, com datas reais no formato esperado; o término não pode ser anterior ao início. Um período de um único dia é permitido.
-- Estabelecimento e status: devem corresponder às opções existentes.
+- Estabelecimento: deve corresponder às opções existentes. O status é calculado, sem seleção manual.
 - Pesquisa sem correspondência: apresenta orientação para ajustar ou limpar os filtros.
 - Campanha inexistente: apresenta mensagem e não abre um modal com dados ausentes.
 - Dados salvos com JSON inválido, campos incorretos ou IDs repetidos: apresenta aviso e exemplos; bloqueia novos cadastros para evitar sobrescrever os dados existentes.
@@ -56,7 +56,17 @@ O array `exemplos` contém as três campanhas da Etapa 02. Quando não há dados
 
 Os dados pertencem ao navegador, perfil e endereço/porta usados. Não são enviados a um servidor nem compartilhados entre computadores. Limpar os dados do site remove os cadastros locais; para demonstrar os exemplos sem alterar seus cadastros, utilize uma janela privada.
 
-O status é escolhido manualmente; não é calculado pelas datas. Os exemplos mantêm os status da Etapa 02. O evento `storage` atualiza listas e indicadores quando outra aba altera os dados. A releitura antes de cadastrar reduz o risco de substituir alterações de outra aba, mas esta versão não oferece controle de concorrência de um banco de dados.
+O status é calculado por `calcularStatus()`, usando a data local do dispositivo: antes do início é Futura; do início até o último dia, inclusive, é Ativa; depois do término, Encerrada. Cards, modal, filtro e indicadores usam essa mesma função. O campo de status do formulário mostra uma prévia ao alterar as datas. Os status manuais de cadastros antigos são ignorados, sem apagar os dados salvos.
+
+A interface recalcula ao abrir a página, à meia-noite e ao retomar uma aba suspensa. Nenhum processo precisa ficar executando com o navegador fechado: ao reabrir, a data atual determina o status correto.
+
+O evento `storage` atualiza listas e indicadores quando outra aba altera os dados. Antes de editar, uma comparação com a versão originalmente aberta evita substituir silenciosamente uma alteração detectada em outra aba. Isso não equivale ao controle de concorrência de um banco de dados.
+
+### Edição e renovação
+
+Cada card da listagem tem o link **Editar campanha**, que abre `cadastro-campanha.html?editar=ID`. `prepararFormulario()` preenche os dados e muda a ação para **Salvar alterações**. A função `cadastrar()` valida e usa `map()` para substituir somente o item com esse ID; a quantidade de campanhas não aumenta.
+
+Para renovar, altere início e término. Se hoje estiver no novo período, o status passa automaticamente para Ativa. Se o início for futuro, fica Futura. O período anterior é substituído; para manter o histórico de duas campanhas, crie outro cadastro. ID inexistente ou dados ilegíveis bloqueiam a edição. Erros de validação e falhas de armazenamento mantêm os campos preenchidos.
 
 O CSS de filtros, mensagens e modal está em `src/css/style.css`. Foram mantidos os breakpoints de 1024 e 600 px.
 
@@ -75,7 +85,7 @@ O CSS de filtros, mensagens e modal está em `src/css/style.css`. Foram mantidos
 
 ## Evidências de funcionamento
 
-Capturas feitas no Microsoft Edge em sessão de teste isolada. Arquivos em `docs/evidencias/etapa-04/`. Imagens de desktop usam viewport 1440 × 1000 e captura da página inteira (a altura do PNG pode ser maior). A imagem 10 registra somente o viewport 390 × 844.
+Capturas feitas no Microsoft Edge em sessão de teste isolada, com data simulada de 20/09/2026 no fuso America/Sao_Paulo para resultados reproduzíveis. Arquivos em `docs/evidencias/etapa-04/`. Imagens de desktop usam viewport 1440 × 1000 e captura da página inteira (a altura do PNG pode ser maior). A imagem 10 registra somente o viewport 390 × 844.
 
 | Imagem | O que demonstra |
 | --- | --- |
@@ -91,18 +101,22 @@ Capturas feitas no Microsoft Edge em sessão de teste isolada. Arquivos em `docs
 | [10 — Modal no smartphone](evidencias/etapa-04/10-detalhes-smartphone.png) | Detalhes adaptados ao viewport móvel |
 | [11 — Dados inválidos](evidencias/etapa-04/11-dados-invalidos.png) | Aviso ao encontrar armazenamento corrompido |
 | [12 — Falha ao salvar](evidencias/etapa-04/12-falha-armazenamento.png) | Erro de escrita simulado, sem limpar o formulário |
+| [13 — Renovação por edição](evidencias/etapa-04/13-edicao-renovacao.png) | Campanha Loja Tech renovada no mesmo cadastro |
+| [14 — Status automático](evidencias/etapa-04/14-status-automatico.png) | Filtro Ativa inclui a campanha renovada |
 
 ## Roteiro para testar
 
 1. Em uma janela privada, abra Campanhas: devem aparecer três exemplos.
-2. Pesquise ACADEMIA e selecione Ativa: deve aparecer uma campanha. Digite algo inexistente: deve aparecer a mensagem de lista vazia. Clique em Limpar filtros.
+2. Pesquise ACADEMIA: deve aparecer uma campanha. Selecione o status correspondente às datas dela em relação a hoje e confira o resultado. Digite algo inexistente: deve aparecer a mensagem de lista vazia. Clique em Limpar filtros.
 3. Abra Ver detalhes. Teste separadamente fechar pelo botão, por Esc e clicando fora. Navegue também usando Tab e Enter.
 4. Em Nova Campanha, envie o formulário vazio e confira as mensagens.
-5. Preencha nome Campanha Primavera, anunciante Loja Primavera, início 10/10/2026, término 01/10/2026, estabelecimento Shopping Centro e status Ativa. O envio deve apontar o período inválido.
+5. Preencha nome Campanha Primavera, anunciante Loja Primavera, início 10/10/2026, término 01/10/2026 e estabelecimento Shopping Centro. O envio deve apontar o período inválido.
 6. Corrija o término para 30/10/2026 e envie. Confira a mensagem de sucesso e o formulário limpo.
 7. Clique em Consultar campanhas cadastradas e atualize a página: devem aparecer quatro campanhas.
-8. Vá a Início: devem aparecer duas campanhas ativas e Campanha Primavera nas recentes. O status Ativa é manual, mesmo que a data seja futura.
+8. Vá a Início: Campanha Primavera aparece nas recentes; a quantidade de ativas deve corresponder aos períodos que incluem o dia de hoje.
 9. Teste as três páginas em 1440 × 900, 768 × 1024 e 390 × 844: menu, cards, filtros e campos devem permanecer utilizáveis, sem rolagem horizontal.
+10. Edite uma campanha encerrada, informe início hoje e término amanhã, e salve. Deve voltar a Ativa, mantendo o ID e a quantidade de cadastros. Atualize a página e confira a persistência.
+11. Na edição, teste término anterior ao início: os dados não devem ser salvos. Teste também um período futuro e outro passado para conferir Futura e Encerrada.
 
 Para reproduzir os testes excepcionais 11 e 12, use apenas a janela privada de teste. No console do navegador, `localStorage.setItem("indoorview-campanhas-v1", "quebrado")` seguido de recarregamento demonstra o aviso de dados inválidos. Feche essa janela privada e abra outra para começar com dados novos. Para simular falha de escrita, preencha um cadastro válido e execute `Storage.prototype.setItem = () => { throw new Error("Falha simulada"); }` antes de enviar; recarregar a página restaura o método. Essa simulação não altera o código-fonte.
 
@@ -110,7 +124,7 @@ Para reproduzir os testes excepcionais 11 e 12, use apenas a janela privada de t
 
 Foram testados em navegador: inclusão e persistência após recarregar; validação de campos e período; combinação de pesquisa/filtro; limpar filtros; lista vazia; abertura e três formas de fechar o modal; retorno do foco; ID inexistente; resumo atualizado; ausência de estouro horizontal nos nove cenários de tamanho/página; leitura de dados corrompidos; falha de escrita e exibição segura de texto. Não foram observados erros JavaScript não tratados nesses testes.
 
-Versão de entrega: tag Git `etapa-04`.
+A tag Git `etapa-04` preserva a entrega original. Esta documentação na branch `main` inclui a melhoria posterior de edição e status automático. Os testes adicionais verificaram renovação sem duplicação, persistência, período inválido, ID inexistente, conflito entre versões, início/término inclusivos e expiração à meia-noite com o modal aberto.
 
 ## Pontos para explicar na apresentação
 
