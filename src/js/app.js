@@ -1,73 +1,56 @@
-"use strict";
+import { CHAVE, listarCampanhas, salvarCampanha } from "./servico.js";
+import { dataValida, validarCampanha, hojeLocal, calcularStatus, normalizar, statusNomes } from "./dominio.js";
+import { criarCard, adicionarTexto } from "./interface.js";
 
-// Os status antigos são ignorados: as datas determinam o status atual.
-const CHAVE = "indoorview-campanhas-v1";
-const locais = { academia: "Academia Power Fit", mercado: "Mercado Central", shopping: "Shopping Centro" };
-const statusNomes = { ativa: "Ativa", futura: "Futura", encerrada: "Encerrada" };
-const exemplos = [
-  { id: "1", nome: "Campanha Academia Fit", anunciante: "Academia Fit", descricao: "Divulgação dos planos da academia.", inicio: "2026-08-25", fim: "2026-09-25", estabelecimento: "academia", status: "ativa" },
-  { id: "2", nome: "Campanha Restaurante Sabor", anunciante: "Restaurante Sabor", descricao: "Divulgação do cardápio do restaurante.", inicio: "2026-09-01", fim: "2026-09-30", estabelecimento: "mercado", status: "futura" },
-  { id: "3", nome: "Campanha Loja Tech", anunciante: "Loja Tech", descricao: "Ofertas de produtos de tecnologia.", inicio: "2026-08-01", fim: "2026-08-20", estabelecimento: "shopping", status: "encerrada" }
-];
-
-function avisar(texto) {
-  document.querySelector("#aviso-dados").textContent = texto;
-}
-
-function dataValida(valor) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor) || valor.startsWith("0000")) return false;
-  const data = new Date(valor + "T00:00:00Z");
-  return !Number.isNaN(data.getTime()) && data.toISOString().slice(0, 10) === valor;
-}
-
-// Retorna erros por campo; a mesma regra valida o cadastro e os dados salvos.
-function validarCampanha(campanha) {
-  const erros = {};
-  if (!campanha.nome || campanha.nome.length < 3 || campanha.nome.length > 80) erros.nome = "Informe um nome entre 3 e 80 caracteres.";
-  if (!campanha.anunciante || campanha.anunciante.length < 3 || campanha.anunciante.length > 80) erros.anunciante = "Informe um anunciante entre 3 e 80 caracteres.";
-  if (campanha.descricao.length > 500) erros.descricao = "Use no máximo 500 caracteres.";
-  if (!dataValida(campanha.inicio)) erros["data-inicio"] = "Informe uma data de início válida.";
-  if (!dataValida(campanha.fim)) erros["data-fim"] = "Informe uma data de término válida.";
-  if (dataValida(campanha.inicio) && dataValida(campanha.fim) && campanha.fim < campanha.inicio) erros["data-fim"] = "O término não pode ser anterior ao início.";
-  if (!Object.hasOwn(locais, campanha.estabelecimento)) erros.estabelecimento = "Selecione um estabelecimento válido.";
-  return erros;
-}
-
-let armazenamentoDisponivel = true;
-function carregarCampanhas() {
-  try {
-    const salvo = localStorage.getItem(CHAVE);
-    if (salvo === null) return [...exemplos];
-    const dados = JSON.parse(salvo);
-    const campos = ["id", "nome", "anunciante", "descricao", "inicio", "fim", "estabelecimento"];
-    if (!Array.isArray(dados) || !dados.every(item =>
-      item && campos.every(campo => typeof item[campo] === "string") &&
-      item.id.length > 0 && Object.keys(validarCampanha(item)).length === 0
-    ) || new Set(dados.map(item => item.id)).size !== dados.length) {
-      throw new Error("Dados inválidos");
-    }
-    return dados;
-  } catch {
-    armazenamentoDisponivel = false;
-    avisar("Não foi possível ler os dados salvos. Exibindo exemplos; cadastros e edições estão bloqueados para preservar os dados existentes.");
-    return [...exemplos];
-  }
-}
-
-let campanhas = carregarCampanhas();
+let campanhas = [];
+let armazenamentoDisponivel = false;
+let enviando = false;
+let consultando = false;
+let formularioPreparado = false;
 const idEdicao = new URLSearchParams(location.search).get("editar");
 let versaoEditada = null;
+const avisar = texto => { document.querySelector("#aviso-dados").textContent = texto; };
 
-function hojeLocal() {
-  const agora = new Date();
-  return [agora.getFullYear(), String(agora.getMonth() + 1).padStart(2, "0"),
-    String(agora.getDate()).padStart(2, "0")].join("-");
+function bloquearFormulario(bloquear) {
+  document.querySelectorAll("#form-campanha input, #form-campanha textarea, #form-campanha select, #form-campanha button")
+    .forEach(campo => { campo.disabled = bloquear; });
 }
 
-function calcularStatus(campanha, hoje = hojeLocal()) {
-  if (hoje < campanha.inicio) return "futura";
-  if (hoje > campanha.fim) return "encerrada";
-  return "ativa"; // Inclui o dia inicial e todo o dia final, no fuso do dispositivo.
+async function carregarPagina() {
+  if (consultando || enviando) return;
+  consultando = true;
+  armazenamentoDisponivel = false;
+  bloquearFormulario(true);
+  const main = document.querySelector("main");
+  const tentar = document.querySelector("#tentar-novamente");
+  main.setAttribute("aria-busy", "true");
+  tentar.hidden = true;
+  avisar("Carregando campanhas...");
+  document.querySelectorAll(".filtros input, .filtros select, .filtros button").forEach(el => { el.disabled = true; });
+  try {
+    campanhas = await listarCampanhas();
+    armazenamentoDisponivel = true;
+    avisar("Campanhas carregadas com sucesso.");
+    bloquearFormulario(false);
+    if (document.querySelector("#form-campanha") && !formularioPreparado) {
+      prepararFormulario();
+      formularioPreparado = true;
+    }
+    if (document.querySelector("#lista-campanhas")) atualizarLista();
+    if (document.querySelector("#campanhas-recentes")) atualizarResumo();
+    document.querySelectorAll(".filtros input, .filtros select, .filtros button").forEach(el => { el.disabled = false; });
+  } catch (erro) {
+    avisar(erro.message);
+    tentar.hidden = false;
+    document.querySelectorAll("#total-ativas, #total-anunciantes, #total-estabelecimentos").forEach(el => { el.textContent = "Indisponível"; });
+    document.querySelector("#lista-campanhas")?.replaceChildren();
+    document.querySelector("#campanhas-recentes")?.replaceChildren();
+    const resultado = document.querySelector("#resultado");
+    if (resultado) resultado.textContent = "Consulta não concluída. Tente novamente.";
+  } finally {
+    consultando = false;
+    main.setAttribute("aria-busy", "false");
+  }
 }
 
 function atualizarPreviaStatus() {
@@ -103,42 +86,6 @@ function prepararFormulario() {
   form.elements["data-fim"].addEventListener("input", atualizarPreviaStatus);
 }
 
-function formatarData(data) {
-  return data.split("-").reverse().join("/");
-}
-
-// textContent apresenta dados como texto, sem interpretar HTML digitado.
-function adicionarTexto(pai, tag, texto) {
-  const elemento = document.createElement(tag);
-  elemento.textContent = texto;
-  pai.append(elemento);
-  return elemento;
-}
-
-function criarCard(campanha, comBotao) {
-  const card = document.createElement("article");
-  adicionarTexto(card, "h3", campanha.nome);
-  adicionarTexto(card, "p", "Anunciante: " + campanha.anunciante);
-  adicionarTexto(card, "p", "Período: " + formatarData(campanha.inicio) + " até " + formatarData(campanha.fim));
-  adicionarTexto(card, "p", "Status: " + statusNomes[calcularStatus(campanha)]);
-  adicionarTexto(card, "p", "Local: " + locais[campanha.estabelecimento]);
-  if (comBotao) {
-    const botao = adicionarTexto(card, "button", "Ver detalhes");
-    botao.type = "button";
-    botao.setAttribute("aria-label", "Ver detalhes: " + campanha.nome);
-    botao.addEventListener("click", () => abrirDetalhes(campanha.id));
-    const editar = adicionarTexto(card, "a", "Editar campanha");
-    editar.className = "editar-campanha";
-    editar.href = "cadastro-campanha.html?editar=" + encodeURIComponent(campanha.id);
-    editar.setAttribute("aria-label", "Editar: " + campanha.nome);
-  }
-  return card;
-}
-
-function normalizar(texto) {
-  return texto.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
 function atualizarLista() {
   const busca = normalizar(document.querySelector("#pesquisa").value);
   const status = document.querySelector("#filtro-status").value;
@@ -154,25 +101,8 @@ function atualizarLista() {
     : "Nenhuma campanha encontrada. Ajuste a pesquisa ou limpe os filtros.";
 }
 
-function abrirDetalhes(id) {
-  const campanha = campanhas.find(item => item.id === id);
-  if (!campanha) {
-    document.querySelector("#resultado").textContent = "Campanha não encontrada. Atualize a listagem.";
-    return;
-  }
-  const conteudo = document.querySelector("#conteudo-detalhes");
-  conteudo.replaceChildren();
-  adicionarTexto(conteudo, "h3", campanha.nome);
-  adicionarTexto(conteudo, "p", "Anunciante: " + campanha.anunciante);
-  adicionarTexto(conteudo, "p", "Descrição: " + (campanha.descricao || "Não informada."));
-  adicionarTexto(conteudo, "p", "Período: " + formatarData(campanha.inicio) + " até " + formatarData(campanha.fim));
-  adicionarTexto(conteudo, "p", "Local: " + locais[campanha.estabelecimento]);
-  adicionarTexto(conteudo, "p", "Status: " + statusNomes[calcularStatus(campanha)]).id = "status-detalhes";
-  document.querySelector("#detalhes").dataset.campanhaId = id;
-  document.querySelector("#detalhes").showModal();
-}
-
-function cadastrar(evento) {
+async function cadastrar(evento) {
+  if (enviando) { evento.preventDefault(); return; }
   evento.preventDefault();
   const form = evento.currentTarget;
   const campanha = {
@@ -202,30 +132,26 @@ function cadastrar(evento) {
     mensagem.focus();
     return;
   }
-  // Releitura evita perder cadastros feitos em outra aba desde a abertura.
-  campanhas = carregarCampanhas();
-  if (!armazenamentoDisponivel) {
-    mensagem.textContent = "Cadastro indisponível: confira o aviso sobre os dados salvos.";
-    mensagem.focus();
-    return;
-  }
+  enviando = true;
+  bloquearFormulario(true);
+  form.setAttribute("aria-busy", "true");
+  mensagem.className = "mensagem carregando";
+  mensagem.textContent = "Enviando campanha...";
   try {
-    const existente = campanhas.find(item => item.id === idEdicao);
-    if (idEdicao !== null && (!existente || JSON.stringify(existente) !== versaoEditada)) {
-      mensagem.textContent = "Esta campanha foi alterada ou não existe mais. Volte à listagem e reabra a edição para conferir os dados atuais.";
-      mensagem.focus();
-      return;
-    }
-    const atualizadas = idEdicao !== null
-      ? campanhas.map(item => item.id === idEdicao ? campanha : item)
-      : [...campanhas, campanha];
-    localStorage.setItem(CHAVE, JSON.stringify(atualizadas));
-    campanhas = atualizadas;
-    if (idEdicao !== null) versaoEditada = JSON.stringify(campanha);
-  } catch {
-    mensagem.textContent = "Não foi possível salvar. Verifique o espaço e a permissão de armazenamento do navegador. Seus campos foram mantidos.";
+    const salva = await salvarCampanha(campanha, idEdicao !== null, versaoEditada);
+    campanhas = idEdicao !== null
+      ? campanhas.map(item => item.id === salva.id ? salva : item)
+      : [...campanhas, salva];
+    if (idEdicao !== null) versaoEditada = JSON.stringify(salva);
+  } catch (erro) {
+    mensagem.className = "mensagem erro";
+    mensagem.textContent = erro.message + " Seus campos foram mantidos. Tente salvar novamente.";
     mensagem.focus();
     return;
+  } finally {
+    enviando = false;
+    bloquearFormulario(false);
+    form.setAttribute("aria-busy", "false");
   }
   if (idEdicao === null) form.reset();
   atualizarPreviaStatus();
@@ -248,7 +174,6 @@ function atualizarResumo() {
 
 // Cada página ativa apenas os eventos dos elementos que possui.
 if (document.querySelector("#form-campanha")) {
-  prepararFormulario();
   document.querySelector("#form-campanha").addEventListener("submit", cadastrar);
 }
 if (document.querySelector("#lista-campanhas")) {
@@ -267,25 +192,22 @@ if (document.querySelector("#lista-campanhas")) {
       evento.clientY < area.top || evento.clientY > area.bottom)) dialogo.close();
   });
   // O elemento dialog já permite fechar com Esc e retornar o foco ao botão.
-  atualizarLista();
 }
-if (document.querySelector("#campanhas-recentes")) atualizarResumo();
 
+
+
+document.querySelector("#tentar-novamente").addEventListener("click", carregarPagina);
 window.addEventListener("storage", evento => {
   if (evento.key !== CHAVE && evento.key !== null) return;
-  armazenamentoDisponivel = true;
-  avisar("");
-  campanhas = carregarCampanhas();
-  if (document.querySelector("#lista-campanhas")) atualizarLista();
-  if (document.querySelector("#campanhas-recentes")) atualizarResumo();
   document.querySelector("#detalhes")?.close();
+  // Uma edição aberta mantém sua versão para detectar conflitos no envio.
+  if (!document.querySelector("#form-campanha")) carregarPagina();
 });
-
 // Atualiza ao virar o dia e ao retomar uma aba que ficou suspensa.
 let diaExibido = hojeLocal();
 function conferirMudancaDeDia() {
   const hoje = hojeLocal();
-  if (hoje === diaExibido) return;
+  if (hoje === diaExibido || !armazenamentoDisponivel) return;
   diaExibido = hoje;
   if (document.querySelector("#lista-campanhas")) atualizarLista();
   if (document.querySelector("#campanhas-recentes")) atualizarResumo();
@@ -307,3 +229,5 @@ function agendarViradaDoDia() {
 agendarViradaDoDia();
 window.addEventListener("focus", conferirMudancaDeDia);
 document.addEventListener("visibilitychange", conferirMudancaDeDia);
+
+carregarPagina();

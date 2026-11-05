@@ -44,7 +44,7 @@ Banco de dados previsto para etapas futuras (não implementado):
 
 Etapa atual
 
-Etapa 04 — Interatividade com JavaScript
+Etapa 05 — Modularização e comunicação assíncrona
 
 Nesta etapa foram criadas três interfaces para o IndoorView:
 
@@ -58,7 +58,7 @@ Para executar, abra a pasta no VS Code e use **Open with Live Server** em `src/i
 
 Alternativa com Python instalado: execute `python -m http.server 8000 --directory src` na raiz do projeto e acesse `http://localhost:8000/index.html`.
 
-O [roteiro de teste e a matriz de evidências](docs/etapa-04.md) explicam como verificar cada requisito. O JavaScript está em `src/js/app.js`. A tag `etapa-04` preserva a entrega original; a branch `main` inclui as melhorias posteriores de edição e status automático.
+O [roteiro da Etapa 05](docs/etapa-05.md) explica os módulos, a consulta Fetch e o envio ao serviço simulado com async/await. Há mensagens de carregamento, sucesso e erro, com repetição de consulta e preservação dos campos em falhas. O serviço simulado grava no navegador, não em um servidor remoto. Os cinco módulos estão em `src/js/` e os dados iniciais em `src/dados/campanhas.json`. Execute por HTTP/HTTPS (Live Server ou GitHub Pages), não abrindo o HTML diretamente por `file://`. As tags anteriores preservam suas respectivas entregas.
 
 Documentação
 
@@ -73,3 +73,6 @@ docs/etapa-03.md
 
 Etapa 04:
 [Interatividade, testes e evidências](docs/etapa-04.md)
+
+Etapa 05:
+[Modularização, serviço assíncrono e demonstração](docs/etapa-05.md)

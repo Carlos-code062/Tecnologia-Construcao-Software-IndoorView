@@ -160,6 +160,9 @@ footer {
 .mensagem { padding: 16px; margin-block: 16px; border-radius: 8px; }
 .erro { background: #fff1f2; color: #991b1b; }
 .sucesso { background: #ecfdf5; color: #065f46; }
+.carregando { background: #eff6ff; color: #1e40af; }
+button:disabled { opacity: 0.65; cursor: wait; }
+[hidden] { display: none !important; }
 .erro-campo { color: #991b1b; font-size: 0.9rem; }
 .erro-campo:empty { display: none; }
 .editar-campanha { display: block; text-align: center; padding: 12px; margin-top: 8px; color: #1d4ed8; font-weight: 700; }
