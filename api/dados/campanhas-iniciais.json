@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "nome": "Campanha Academia Fit",
+    "anunciante": "Academia Fit",
+    "descricao": "Divulgação dos planos da academia.",
+    "inicio": "2026-08-25",
+    "fim": "2026-09-25",
+    "estabelecimento": "academia",
+    "criadoEm": "2026-08-20T12:00:00.000Z",
+    "atualizadoEm": "2026-08-20T12:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "nome": "Campanha Restaurante Sabor",
+    "anunciante": "Restaurante Sabor",
+    "descricao": "Divulgação do cardápio do restaurante.",
+    "inicio": "2026-09-01",
+    "fim": "2026-09-30",
+    "estabelecimento": "mercado",
+    "criadoEm": "2026-08-20T12:00:00.000Z",
+    "atualizadoEm": "2026-08-20T12:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "nome": "Campanha Loja Tech",
+    "anunciante": "Loja Tech",
+    "descricao": "Ofertas de produtos de tecnologia.",
+    "inicio": "2026-08-01",
+    "fim": "2026-08-20",
+    "estabelecimento": "shopping",
+    "criadoEm": "2026-08-20T12:00:00.000Z",
+    "atualizadoEm": "2026-08-20T12:00:00.000Z"
+  }
+]

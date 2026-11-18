@@ -1,0 +1,3 @@
+node_modules/
+api/dados/campanhas.json
+api/dados/*.tmp

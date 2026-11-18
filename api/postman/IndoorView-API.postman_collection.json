@@ -1,0 +1,205 @@
+{
+  "info": {
+    "name": "IndoorView API - Etapa 06",
+    "description": "Coleção para testar a API REST de campanhas do IndoorView. Inicie a API com `npm start` dentro da pasta `api` e execute as requisições em ordem (ou use o Collection Runner). A requisição \"Criar campanha\" guarda o id criado na variável campanhaId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "campanhaId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1 - Fluxo principal (CRUD)",
+      "item": [
+        {
+          "name": "Criar campanha (POST)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+              "pm.test('Retorna header Location', () => pm.response.to.have.header('Location'));",
+              "const corpo = pm.response.json();",
+              "pm.test('Retorna id e status calculado', () => { pm.expect(corpo.id).to.be.a('string'); pm.expect(corpo.status).to.eql('ativa'); });",
+              "pm.collectionVariables.set('campanhaId', corpo.id);"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Campanha Verão\",\n  \"anunciante\": \"Sorveteria Gelato\",\n  \"descricao\": \"Promoção de sorvetes.\",\n  \"inicio\": \"2026-11-01\",\n  \"fim\": \"2099-12-31\",\n  \"estabelecimento\": \"shopping\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        },
+        {
+          "name": "Listar campanhas (GET)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Retorna uma lista', () => pm.expect(pm.response.json()).to.be.an('array'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        },
+        {
+          "name": "Listar campanhas ativas (GET com filtro)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Todas estão ativas', () => pm.response.json().forEach(c => pm.expect(c.status).to.eql('ativa')));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas?status=ativa", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"], "query": [{ "key": "status", "value": "ativa" }] }
+          }
+        },
+        {
+          "name": "Pesquisar por nome ou anunciante (GET com busca)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Encontra a campanha criada', () => pm.expect(pm.response.json().some(c => c.id === pm.collectionVariables.get('campanhaId'))).to.be.true);"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas?busca=gelato", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"], "query": [{ "key": "busca", "value": "gelato" }] }
+          }
+        },
+        {
+          "name": "Consultar campanha por id (GET)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Retorna a campanha pedida', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('campanhaId')));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas/{{campanhaId}}", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "{{campanhaId}}"] }
+          }
+        },
+        {
+          "name": "Substituir campanha (PUT)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Dados substituídos', () => { const c = pm.response.json(); pm.expect(c.nome).to.eql('Campanha Inverno'); pm.expect(c.status).to.eql('futura'); });"
+          ]}}],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Campanha Inverno\",\n  \"anunciante\": \"Sorveteria Gelato\",\n  \"descricao\": \"Chocolate quente e sobremesas.\",\n  \"inicio\": \"2098-06-01\",\n  \"fim\": \"2098-08-31\",\n  \"estabelecimento\": \"mercado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas/{{campanhaId}}", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "{{campanhaId}}"] }
+          }
+        },
+        {
+          "name": "Alterar parcialmente (PATCH)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('Só o campo enviado mudou', () => { const c = pm.response.json(); pm.expect(c.descricao).to.eql('Descrição revisada.'); pm.expect(c.nome).to.eql('Campanha Inverno'); });"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"descricao\": \"Descrição revisada.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas/{{campanhaId}}", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "{{campanhaId}}"] }
+          }
+        },
+        {
+          "name": "Excluir campanha (DELETE)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/campanhas/{{campanhaId}}", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "{{campanhaId}}"] }
+          }
+        },
+        {
+          "name": "Consultar campanha excluída (404)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));",
+            "pm.test('Erro padronizado', () => pm.expect(pm.response.json().erro.codigo).to.eql('NAO_ENCONTRADA'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas/{{campanhaId}}", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "{{campanhaId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Erros e validações",
+      "item": [
+        {
+          "name": "Criar com campos inválidos (422)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 422', () => pm.response.to.have.status(422));",
+            "pm.test('Lista os campos com erro', () => pm.expect(pm.response.json().erro.detalhes.length).to.be.above(0));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"AB\",\n  \"anunciante\": \"\",\n  \"inicio\": \"2026-10-10\",\n  \"fim\": \"2026-10-01\",\n  \"estabelecimento\": \"praia\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        },
+        {
+          "name": "Criar com JSON malformado (400)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "pm.test('Código JSON_INVALIDO', () => pm.expect(pm.response.json().erro.codigo).to.eql('JSON_INVALIDO'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"nome\": \"Campanha sem fechar\"" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        },
+        {
+          "name": "Criar sem Content-Type JSON (415)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 415', () => pm.response.to.have.status(415));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "text/plain" }],
+            "body": { "mode": "raw", "raw": "nome=Campanha" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        },
+        {
+          "name": "Filtro de status inválido (400)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "pm.test('Código PARAMETRO_INVALIDO', () => pm.expect(pm.response.json().erro.codigo).to.eql('PARAMETRO_INVALIDO'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/campanhas?status=pausada", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"], "query": [{ "key": "status", "value": "pausada" }] }
+          }
+        },
+        {
+          "name": "Alterar campanha inexistente (404)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Nova campanha\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanhas/nao-existe", "host": ["{{baseUrl}}"], "path": ["api", "campanhas", "nao-existe"] }
+          }
+        },
+        {
+          "name": "Método não permitido (405)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 405', () => pm.response.to.have.status(405));",
+            "pm.test('Informa métodos permitidos', () => pm.response.to.have.header('Allow'));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/campanhas", "host": ["{{baseUrl}}"], "path": ["api", "campanhas"] }
+          }
+        }
+      ]
+    }
+  ]
+}
