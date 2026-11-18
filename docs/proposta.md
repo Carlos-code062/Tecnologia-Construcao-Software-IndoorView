@@ -1,9 +1,10 @@
-1. Nome da aplicação
+# Proposta e especificação do projeto
+
+## 1. Nome da aplicação
 
 IndoorView — Sistema de Gerenciamento de Mídia Indoor
 
-
-2. Descrição do problema que pretende resolver
+## 2. Descrição do problema que pretende resolver
 
 Profissionais e empresas que trabalham com mídia indoor precisam controlar anúncios exibidos em televisões instaladas em diferentes estabelecimentos.
 
@@ -11,8 +12,7 @@ Quando esse controle é realizado por planilhas, mensagens ou anotações, pode 
 
 O IndoorView será uma aplicação Web para centralizar essas informações e facilitar o gerenciamento das campanhas.
 
-
-3. Público-alvo
+## 3. Público-alvo
 
 O sistema será destinado principalmente a:
 
@@ -20,15 +20,13 @@ O sistema será destinado principalmente a:
 - agências de publicidade;
 - profissionais que comercializam anúncios em televisões instaladas em estabelecimentos.
 
-
-4. Objetivo principal da aplicação
+## 4. Objetivo principal da aplicação
 
 Criar uma aplicação Web que permita organizar anunciantes, campanhas publicitárias e os locais onde os anúncios serão exibidos.
 
 O sistema deverá facilitar a consulta das campanhas e identificar quais estão ativas, programadas ou encerradas.
 
-
-5. Funcionalidades
+## 5. Funcionalidades
 
 A aplicação deverá possuir as seguintes funcionalidades principais:
 
@@ -40,10 +38,9 @@ A aplicação deverá possuir as seguintes funcionalidades principais:
 6. Consultar campanhas por status: futura, ativa ou encerrada.
 7. Pesquisar campanhas por anunciante.
 
+## 6. Entidades ou conceitos importantes
 
-6. Entidades ou conceitos importantes
-
-Anunciante
+### Anunciante
 
 Representa a empresa ou pessoa que deseja divulgar um anúncio.
 
@@ -53,7 +50,7 @@ Informações principais:
 - telefone;
 - e-mail.
 
-Campanha
+### Campanha
 
 Representa o anúncio que será divulgado.
 
@@ -65,7 +62,7 @@ Informações principais:
 - data de início;
 - data de término.
 
-Estabelecimento
+### Estabelecimento
 
 Representa o local onde uma ou mais telas estão instaladas.
 
@@ -75,16 +72,15 @@ Informações principais:
 - endereço;
 - observações.
 
-Tela
+### Tela
 
 Representa a televisão utilizada para exibição dos anúncios.
 
 Cada tela estará vinculada a um estabelecimento.
 
+## 7. Telas ou interfaces
 
-7. Telas ou interfaces
-
-Tela inicial
+### Tela inicial
 
 Apresentará um resumo do sistema, mostrando:
 
@@ -93,7 +89,7 @@ Apresentará um resumo do sistema, mostrando:
 - campanhas ativas;
 - quantidade de telas cadastradas.
 
-Tela de anunciantes
+### Tela de anunciantes
 
 Permitirá:
 
@@ -102,7 +98,7 @@ Permitirá:
 - editar informações;
 - pesquisar anunciantes.
 
-Tela de campanhas
+### Tela de campanhas
 
 Permitirá:
 
@@ -113,12 +109,11 @@ Permitirá:
 - consultar campanhas;
 - visualizar o status da campanha.
 
-Tela de estabelecimentos e telas
+### Tela de estabelecimentos e telas
 
 Permitirá cadastrar estabelecimentos e registrar as telas existentes em cada local.
 
-
-8. Operações da aplicação
+## 8. Operações da aplicação
 
 As principais operações serão:
 
@@ -133,8 +128,7 @@ As principais operações serão:
 9. Pesquisar campanhas por anunciante.
 10. Encerrar ou excluir uma campanha.
 
-
-9. Tecnologias utilizadas no cliente
+## 9. Tecnologias utilizadas no cliente
 
 Serão utilizadas inicialmente:
 
@@ -142,38 +136,34 @@ Serão utilizadas inicialmente:
 - CSS3;
 - JavaScript.
 
-
-10. Tecnologias utilizadas no servidor
+## 10. Tecnologias utilizadas no servidor
 
 Serão utilizadas:
 
 - Node.js;
 - Express.js.
 
-
-11. Tecnologia de persistência
+## 11. Tecnologia de persistência
 
 Será utilizado o banco de dados SQLite.
 
 O banco armazenará os dados dos anunciantes, campanhas, estabelecimentos e telas.
 
+## 12. Diagrama da visão geral da solução
 
-12. Diagrama da visão geral da solução
+![Diagrama da solução](diagrama-solucao.png)
 
-![Diagrama da solução](https://github.com/user-attachments/assets/3a49df35-cad0-42a9-a997-eddfc69b8b89)
-
-Regra principal do sistema
+## Regra principal do sistema
 
 Uma campanha será associada a um anunciante, possuirá uma data de início e uma data de término e poderá ser exibida em uma ou mais telas.
 
 Com base nas datas, o sistema poderá informar se a campanha está:
 
-- Futura: ainda não chegou à data de início.
-- Ativa: está dentro do período de exibição.
-- Encerrada: a data de término já passou.
+- **Futura:** ainda não chegou à data de início.
+- **Ativa:** está dentro do período de exibição.
+- **Encerrada:** a data de término já passou.
 
-
-Escopo do projeto
+## Escopo do projeto
 
 O objetivo do projeto é criar um sistema simples de gerenciamento.
 

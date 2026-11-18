@@ -6,8 +6,7 @@
     "descricao": "Divulgação dos planos da academia.",
     "inicio": "2026-08-25",
     "fim": "2026-09-25",
-    "estabelecimento": "academia",
-    "status": "ativa"
+    "estabelecimento": "academia"
   },
   {
     "id": "2",
@@ -16,8 +15,7 @@
     "descricao": "Divulgação do cardápio do restaurante.",
     "inicio": "2026-09-01",
     "fim": "2026-09-30",
-    "estabelecimento": "mercado",
-    "status": "futura"
+    "estabelecimento": "mercado"
   },
   {
     "id": "3",
@@ -26,7 +24,6 @@
     "descricao": "Ofertas de produtos de tecnologia.",
     "inicio": "2026-08-01",
     "fim": "2026-08-20",
-    "estabelecimento": "shopping",
-    "status": "encerrada"
+    "estabelecimento": "shopping"
   }
 ]

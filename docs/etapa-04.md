@@ -2,6 +2,8 @@
 
 O IndoorView mantém as três páginas e o CSS responsivo das etapas anteriores. Esta versão acrescenta cadastro validado, pesquisa com filtro de status e detalhes em uma janela modal. A página inicial também atualiza os indicadores e as campanhas recentes.
 
+> **Nota de atualização:** a versão entregue nesta etapa está preservada na tag Git `etapa-04`, onde toda a lógica ficava em `src/js/app.js`. Na Etapa 05 o código foi dividido em módulos, e este documento foi atualizado para indicar onde cada função está hoje: `app.js` (eventos e páginas), `dominio.js` (validação e status), `interface.js` (cards e modal), `servico.js` e `servico-simulado.js` (consulta e gravação). As funcionalidades descritas continuam as mesmas.
+
 ## Execução
 
 1. Abra a pasta do projeto no VS Code.
@@ -16,21 +18,21 @@ Use um navegador atualizado, com JavaScript e armazenamento local habilitados. M
 
 ### 1. Cadastro de campanha
 
-Em `src/cadastro-campanha.html`, o evento `submit` chama `cadastrar()` em `src/js/app.js`. A função usa `preventDefault()` para evitar o envio tradicional e o recarregamento da página, lê os campos, remove espaços nas extremidades e chama `validarCampanha()`.
+Em `src/cadastro-campanha.html`, o evento `submit` chama `cadastrar()` em `src/js/app.js`. A função usa `preventDefault()` para evitar o envio tradicional e o recarregamento da página, lê os campos, remove espaços nas extremidades e chama `validarCampanha()`, de `src/js/dominio.js`.
 
-Erros são apresentados abaixo dos campos, com `aria-invalid` e foco no primeiro campo inválido. Um cadastro válido é acrescentado ao array, salvo com `localStorage.setItem()` e confirmado por uma mensagem de sucesso. O formulário é limpo somente depois de salvar. A campanha aparece na listagem e continua disponível após atualizar a página.
+Erros são apresentados abaixo dos campos, com `aria-invalid` e foco no primeiro campo inválido. Um cadastro válido é enviado por `salvarCampanha()` (`src/js/servico.js`), gravado com `localStorage.setItem()` em `src/js/servico-simulado.js`, acrescentado ao array e confirmado por uma mensagem de sucesso. O formulário é limpo somente depois de salvar. A campanha aparece na listagem e continua disponível após atualizar a página.
 
 ### 2. Pesquisa e filtro de campanhas
 
 Em `src/campanhas.html`, digitar na pesquisa dispara `input`; selecionar um status dispara `change`. Ambos chamam `atualizarLista()` em `src/js/app.js`.
 
-A função usa `filter()` para combinar pesquisa por nome/anunciante com o status. Maiúsculas, minúsculas, espaços nas extremidades e acentos são normalizados. A lista é reconstruída com `replaceChildren()`, `createElement()`, `append()` e `forEach()`, sem recarregar a página. O resultado informa a quantidade ou uma mensagem de lista vazia. O botão Limpar filtros restaura todos os resultados.
+A função usa `filter()` para combinar pesquisa por nome/anunciante com o status. Maiúsculas, minúsculas, espaços nas extremidades e acentos são normalizados por `normalizar()` (`src/js/dominio.js`). A lista é reconstruída com `replaceChildren()`, `append()` e `forEach()`, e cada card é criado com `createElement()` por `criarCard()` (`src/js/interface.js`), sem recarregar a página. O resultado informa a quantidade ou uma mensagem de lista vazia. O botão Limpar filtros restaura todos os resultados.
 
 ### 3. Detalhes em modal
 
-Os botões criados por `criarCard()` chamam `abrirDetalhes(id)`, que procura a campanha com `find()` e preenche o elemento `dialog` de `src/campanhas.html`. A janela apresenta nome, anunciante, descrição, período, local e status.
+Os botões criados por `criarCard()` chamam `abrirDetalhes(campanha)`, ambos em `src/js/interface.js`. A função recebe a própria campanha do card e preenche o elemento `dialog` de `src/campanhas.html`. A janela apresenta nome, anunciante, descrição, período, local e status.
 
-É possível fechar pelo botão, pela tecla Esc ou clicando fora. O `dialog` nativo controla o foco enquanto está aberto e o devolve ao botão que abriu a janela. Um identificador inexistente produz uma mensagem em vez de tentar acessar dados ausentes.
+É possível fechar pelo botão, pela tecla Esc ou clicando fora. O `dialog` nativo controla o foco enquanto está aberto e o devolve ao botão que abriu a janela. Como o modal recebe o objeto da campanha, não depende de procurar um identificador. A busca por ID com `find()` é usada na edição (`prepararFormulario()`), que bloqueia o formulário e mostra uma mensagem quando o ID não existe.
 
 ### 4. Resumo da página inicial
 
@@ -45,18 +47,18 @@ O indicador de oito telas permanece identificado como exemplo da Etapa 02, pois 
 - Datas: início e término obrigatórios, com datas reais no formato esperado; o término não pode ser anterior ao início. Um período de um único dia é permitido.
 - Estabelecimento: deve corresponder às opções existentes. O status é calculado, sem seleção manual.
 - Pesquisa sem correspondência: apresenta orientação para ajustar ou limpar os filtros.
-- Campanha inexistente: apresenta mensagem e não abre um modal com dados ausentes.
-- Dados salvos com JSON inválido, campos incorretos ou IDs repetidos: apresenta aviso e exemplos; bloqueia novos cadastros para evitar sobrescrever os dados existentes.
+- Campanha inexistente na edição (`cadastro-campanha.html?editar=ID` com um ID que não existe): apresenta mensagem e bloqueia o formulário.
+- Dados salvos com JSON inválido, campos incorretos ou IDs repetidos: apresenta aviso; bloqueia novos cadastros para evitar sobrescrever os dados existentes.
 - Falha ao salvar (por exemplo, armazenamento bloqueado ou cheio): informa o erro e mantém o formulário preenchido, sem anunciar sucesso.
 - Conteúdo digitado é inserido por `textContent`, sendo apresentado como texto, sem executar HTML.
 
 ## Armazenamento e limitações
 
-O array `exemplos` contém as três campanhas da Etapa 02. Quando não há dados salvos, ele é utilizado como ponto de partida. O primeiro cadastro salva a lista completa na chave `indoorview-campanhas-v1` do `localStorage`, usando JSON.
+As três campanhas de exemplo da Etapa 02 ficam em `src/dados/campanhas.json` (na versão da tag `etapa-04`, ficavam no array `exemplos` de `app.js`). Quando não há dados salvos, elas são consultadas por Fetch e usadas como ponto de partida. O primeiro cadastro salva a lista completa na chave `indoorview-campanhas-v1` do `localStorage`, usando JSON.
 
 Os dados pertencem ao navegador, perfil e endereço/porta usados. Não são enviados a um servidor nem compartilhados entre computadores. Limpar os dados do site remove os cadastros locais; para demonstrar os exemplos sem alterar seus cadastros, utilize uma janela privada.
 
-O status é calculado por `calcularStatus()`, usando a data local do dispositivo: antes do início é Futura; do início até o último dia, inclusive, é Ativa; depois do término, Encerrada. Cards, modal, filtro e indicadores usam essa mesma função. O campo de status do formulário mostra uma prévia ao alterar as datas. Os status manuais de cadastros antigos são ignorados, sem apagar os dados salvos.
+O status é calculado por `calcularStatus()` (`src/js/dominio.js`), usando a data local do dispositivo: antes do início é Futura; do início até o último dia, inclusive, é Ativa; depois do término, Encerrada. Cards, modal, filtro e indicadores usam essa mesma função. O campo de status do formulário mostra uma prévia ao alterar as datas. Os status manuais de cadastros antigos são ignorados, sem apagar os dados salvos.
 
 A interface recalcula ao abrir a página, à meia-noite e ao retomar uma aba suspensa. Nenhum processo precisa ficar executando com o navegador fechado: ao reabrir, a data atual determina o status correto.
 
@@ -74,14 +76,14 @@ O CSS de filtros, mensagens e modal está em `src/css/style.css`. Foram mantidos
 
 | Requisito | Funcionalidade relacionada | Arquivo(s) | Evidência |
 | --- | --- | --- | --- |
-| Manipulação do DOM | Listagem e modal | `src/js/app.js`, `src/campanhas.html` | `criarCard()`, `atualizarLista()` e `abrirDetalhes()`; imagens 02 e 04 |
-| Tratamento de eventos | Cadastro, filtros e detalhes | `src/js/app.js` | `addEventListener()` para submit, input, change e click; imagens 02, 04 e 07 |
-| Validação de formulários | Cadastro | `src/js/app.js`, `src/cadastro-campanha.html` | `validarCampanha()` e `dataValida()`; imagens 05 e 06 |
+| Manipulação do DOM | Listagem e modal | `src/js/app.js`, `src/js/interface.js`, `src/campanhas.html` | `atualizarLista()` (app.js), `criarCard()` e `abrirDetalhes()` (interface.js); imagens 02 e 04 |
+| Tratamento de eventos | Cadastro, filtros e detalhes | `src/js/app.js`, `src/js/interface.js` | `addEventListener()` para submit, input, change e click; imagens 02, 04 e 07 |
+| Validação de formulários | Cadastro | `src/js/dominio.js`, `src/js/app.js`, `src/cadastro-campanha.html` | `validarCampanha()` e `dataValida()` (dominio.js), chamadas em `cadastrar()` (app.js); imagens 05 e 06 |
 | Alteração dinâmica da interface | Cadastro, filtro e resumo | `src/js/app.js`, três HTML | `atualizarLista()` e `atualizarResumo()`; imagens 02, 08 e 09 |
-| Uso de funções | Todas | `src/js/app.js` | Funções nomeadas para validar, cadastrar, criar cards e mostrar detalhes |
-| Uso de arrays | Campanhas e resultados | `src/js/app.js` | `exemplos`, `campanhas` e `filtradas`; imagem 08 |
-| Métodos de iteração | Filtro, cards e validação dos dados | `src/js/app.js` | `filter()`, `forEach()`, `find()`, `map()` e `every()` |
-| Tratamento de situações inválidas | Cadastro, pesquisa e armazenamento | `src/js/app.js` | Erros por campo, lista vazia e `try/catch`; imagens 03, 05, 06, 11 e 12 |
+| Uso de funções | Todas | `src/js/app.js`, `src/js/dominio.js`, `src/js/interface.js` | Funções nomeadas para validar, cadastrar, criar cards e mostrar detalhes |
+| Uso de arrays | Campanhas e resultados | `src/js/app.js`, `src/dados/campanhas.json` | `campanhas` e `filtradas` (app.js); lista de exemplos em JSON; imagem 08 |
+| Métodos de iteração | Filtro, cards e validação dos dados | `src/js/app.js`, `src/js/servico-simulado.js` | `filter()`, `forEach()`, `find()` e `map()` (app.js); `every()` (servico-simulado.js) |
+| Tratamento de situações inválidas | Cadastro, pesquisa e armazenamento | `src/js/app.js`, `src/js/dominio.js`, `src/js/servico-simulado.js` | Erros por campo, lista vazia e `try/catch`; imagens 03, 05, 06, 11 e 12 |
 
 ## Evidências de funcionamento
 
@@ -132,4 +134,4 @@ A tag Git `etapa-04` preserva a entrega original. Esta documentação na branch 
 - `cadastrar()` recebe o evento, valida e salva. `preventDefault()` impede o recarregamento.
 - `filter()` seleciona os resultados; `forEach()` cria os cards; `find()` procura uma campanha pelo ID.
 - O DOM é atualizado com `createElement()`, `textContent` e `replaceChildren()`.
-- Para mudar o limite mínimo do nome, localize `validarCampanha()`. Para mudar quantas campanhas recentes aparecem, localize `slice(-2)` em `atualizarResumo()`.
+- Para mudar o limite mínimo do nome, localize `validarCampanha()` em `src/js/dominio.js`. Para mudar quantas campanhas recentes aparecem, localize `slice(-2)` em `atualizarResumo()`.
